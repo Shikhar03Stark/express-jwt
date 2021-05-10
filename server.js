@@ -19,6 +19,7 @@ app.get('/', (req, res) => {
 app.use('/auth', require('./routes/auth/auth'));
 //protected routes
 app.use('/user', passport.authenticate('jwt', {session: false}), require('./routes/user/user'));
+app.use('/product', passport.authenticate('jwt', {session: false}), require('./routes/product/product'));
 
 //error handler
 app.use((err, req, res, next) => {

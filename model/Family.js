@@ -5,7 +5,7 @@ const User = require('./User')
 class Family extends Model{};
 
 Family.init({
-    cid : {
+    rid : {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,

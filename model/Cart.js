@@ -3,10 +3,10 @@ const instance = require('../config/db');
 const User = require('./User')
 const Product = require('./Product')
 
-class Order extends Model{}
+class Cart extends Model{}
 
-Order.init({
-    oid : {
+Cart.init({
+    cid : {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: true,
@@ -18,7 +18,8 @@ Order.init({
         references: {
             model: User,
             key: 'uid',
-        }
+        },
+        unique: 'compositeUniq',
     },
     pid : {
         type: DataTypes.INTEGER,
@@ -26,15 +27,16 @@ Order.init({
         references: {
             model: Product,
             key: 'pid',
-        }
+        },
+        unique: 'compositeUniq',
     }
 }, {
     sequelize: instance,
-    modelName: 'Order'
+    modelName: 'Cart',
 });
 
-Order.sync();
+Cart.sync();
 
-module.exports = instance.models.Order;
+module.exports = instance.models.Cart;
 
 
