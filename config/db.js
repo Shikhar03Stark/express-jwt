@@ -1,8 +1,9 @@
 const Sequalize = require('sequelize')
+const path = require('path');
 
 const sequalize = new Sequalize({
     dialect: 'sqlite',
-    storage: '../data/database.sqlite'
+    storage: './data/database.sqlite'
 });
 
 sequalize.authenticate()
@@ -13,5 +14,5 @@ sequalize.authenticate()
         console.error(err);
     })
 
-    
+
 module.exports = sequalize

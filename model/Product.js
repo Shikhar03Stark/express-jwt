@@ -24,7 +24,7 @@ Product.init({
         defaultValue: 0.0
     }
 }, {
-    instance,
+    sequelize: instance,
     modelName: 'Product'
 });
 

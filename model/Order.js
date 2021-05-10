@@ -29,7 +29,7 @@ Order.init({
         }
     }
 }, {
-    instance,
+    sequelize: instance,
     modelName: 'Order'
 });
 

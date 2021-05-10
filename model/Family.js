@@ -28,7 +28,7 @@ Family.init({
         }
     }
 }, {
-    instance,
+    sequelize: instance,
     modelName: 'Family',
 });
 

@@ -1,5 +1,6 @@
 const {DataTypes, Model} = require('sequelize')
 const instance = require('../config/db');
+const util = require('../util/util');
 
 class User extends Model{}
 
@@ -15,7 +16,7 @@ User.init({
         allowNull: false,
     },
     password : {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     },
     name : {
@@ -24,8 +25,13 @@ User.init({
         allowNull: true,
     }
 }, {
-    instance,
+    sequelize: instance,
     modelName: 'User'
+});
+
+User.beforeCreate(async (user, opts) => {
+    const hashedPass = await util.hashPassword(user.password);
+    user.password = await hashedPass;
 });
 
 User.sync();
