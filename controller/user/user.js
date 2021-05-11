@@ -2,7 +2,7 @@ const User = require('../../model/User');
 const Cart = require('../../model/Cart');
 const Product = require('../../model/Product');
 const Family = require('../../model/Family');
-const {QueryTypes} = require('sequelize');
+const {QueryTypes, Op} = require('sequelize');
 const sequalize = require('../../config/db');
 const util = require('../../util/util');
 
@@ -31,6 +31,7 @@ const getCart = async (req, res, next) => {
     
         return res.status(200).json({
             ok : true,
+            count: results?results.length:0,
             products : results || [],
         });
 
@@ -212,7 +213,57 @@ const addMember = async (req, res, next) => {
 
 }
 
+const removeMember = async (req, res, next) => {
+    const uid = req.user.uid;
+    const mem_email = req.body.email;
 
+    try {
+        if(mem_email){
+            const member = await User.findOne({
+                where:{
+                    email: mem_email,
+                }
+            });
+
+            if (member){
+                const count = await Family.destroy({
+                    where : {
+                        [Op.or]: [
+                            {
+                                user_from: uid,
+                                user_to: member.uid
+                            },
+                            {
+                                user_from: member.uid,
+                                user_to: uid,
+                            }
+                        ],
+                }});
+
+                return res.status(200).json({
+                    ok: true,
+                    count: Math.floor(count/2),
+                })
+            }
+            else{
+                return res.status(200).json({
+                    ok: false,
+                    error: `Member doesn't exist`,
+                })
+            }
+        }
+        else{
+            return res.status(200).json({
+                ok: false,
+                error: `email is required`
+            })
+        }
+    } catch (e) {
+        return next(e);
+    }
+}
+
+module.exports.removeMember = removeMember;
 module.exports.addMember = addMember;
 module.exports.addToCart = addMember;
 module.exports.getFamily = getFamily;

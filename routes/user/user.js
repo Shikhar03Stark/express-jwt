@@ -37,4 +37,10 @@ router.get('/family', user.getFamily);
  */
 router.post('/family/add', user.addMember);
 
+/**
+ * route : /user/family/remove
+ * method : DELETE
+ */
+router.delete('/family/remove', user.removeMember);
+
 module.exports = router;

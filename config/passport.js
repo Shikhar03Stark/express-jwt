@@ -13,6 +13,15 @@ passport.use(
     },
     async (email, password, done) => {
         try {
+            const count = await User.count({
+                where:{
+                    email: email
+                }
+            });
+            console.log(`${__filename} : count : ${count}`);
+            if (count > 0){
+                return done(`User already exists`, null);
+            }
             const user = await User.create({
                 email: email,
                 password: password,
@@ -39,7 +48,7 @@ passport.use(
             console.log(`${__filename}: user : ${JSON.stringify(user)}`);
             if (!user) {
                 //user not found
-                return done(null, false, {message: 'User not found'});
+                return done(null, null, {message: 'User not found'});
             }
             const validate = await util.isValidPassword(password, user.password);
 
@@ -47,7 +56,7 @@ passport.use(
                 return done(null, user, {message:'Logged in Successfully'});
             }
             else{
-                return done(null, false, {message: 'Password did not match'});
+                return done(null, null, {message: 'Password did not match'});
             }
         } catch (e) {
             return done(e);

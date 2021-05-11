@@ -22,10 +22,20 @@ app.use('/auth', require('./routes/auth/auth'));
 app.use('/user', passport.authenticate('jwt', {session: false}), require('./routes/user/user'));
 app.use('/product', passport.authenticate('jwt', {session: false}), require('./routes/product/product'));
 
+
+//404
+app.use((req, res, next) => {
+    console.log(`Resource not found`);
+    return res.status(404).json({
+        ok: false,
+        error: 'Resource not found',
+        method: req.method,
+    })
+})
 //error handler
 app.use((err, req, res, next) => {
     console.log(err);
-    res.status(err.status || 500)
+    return res.status(err.status || 500)
     .json({
         ok: false,
         error: err

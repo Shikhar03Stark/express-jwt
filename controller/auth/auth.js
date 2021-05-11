@@ -8,19 +8,21 @@ const signUp = (req, res, next) => {
         user : req.user,
     }
 
-    res.status(200).json(msg);
-    next();
+    return res.status(200).json(msg);
+    
 }
 
-const logIn = (req, res, next) => {
-    passport.authenticate('login', (err, user, info) => {
+const logIn = async (req, res, next) => {
+    passport.authenticate('login', async (err, user, info) => {
         try {
             if (err || !user) {
-                console.log(`Error Occured`);
-                return next(err);
+                return res.status(400).json({
+                    ok: false,
+                    error: `Invalid credentials`,
+                })
             }
     
-            req.login(user, {session: false}, err => {
+            req.login(user, {session: false}, async err => {
                 if (err) {
                     return next(err);
                 }   
