@@ -11,7 +11,7 @@ Family.init({
         primaryKey: true,
         autoIncrement: true,
     },
-    user1 : {
+    user_from : {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -19,7 +19,7 @@ Family.init({
             key: 'uid',
         }
     },
-    user2 : {
+    user_to : {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {

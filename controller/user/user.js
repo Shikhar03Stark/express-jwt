@@ -1,9 +1,10 @@
 const User = require('../../model/User');
 const Cart = require('../../model/Cart');
 const Product = require('../../model/Product');
+const Family = require('../../model/Family');
 const {QueryTypes} = require('sequelize');
 const sequalize = require('../../config/db');
-const e = require('express');
+const util = require('../../util/util');
 
 const entryPoint = (req, res, next) => {
     return res.status(200).json({
@@ -110,9 +111,110 @@ const deleteItem = async (req, res, next) => {
 }
 
 const getFamily = async (req, res, next) => {
-    
+    const uid = req.user.uid;
+    const query = `SELECT "uid", "email", "name" FROM "Users" WHERE "uid" IN (SELECT "user_to" FROM "Families" WHERE "user_from" = :uid)`;
+    try {
+        const members = await sequalize.query(
+            query,
+            {
+                replacements: {uid: uid},
+                type: QueryTypes.SELECT,
+            }
+            );
+        return res.status(200).json({
+            ok: true,
+            count: (members)?members.length:0,
+            family: members || [],
+        });
+        
+    } catch (e) {
+        return next(e);
+    }
 }
 
+const addMember = async (req, res, next) => {
+    let mem_email = req.body.email;
+    let mem_password = req.body.password;
+
+    try {
+        if (mem_email && mem_password) {
+            if (mem_email === req.user.email){
+                return res.status(200).json({
+                    ok: false,
+                    error : `Email can't be same as user email`,
+                })
+            }
+            mem_email = mem_email.trim();
+            mem_password = mem_password.trim();
+    
+            const member = await User.findOne({
+                where: {
+                    email: mem_email,
+                }
+            });
+    
+            if (member) {
+                const relation = await Family.findOne({
+                    where: {
+                        user_from: req.user.uid,
+                        user_to: member.uid,
+                    }
+                });
+    
+                if (!relation){
+                    if(!util.isValidPassword(mem_password, member.password)){
+                        return res.status(200).json({
+                            ok: false,
+                            error: `Password did not match`,
+                        })
+                    }
+
+                    const relation = await Family.bulkCreate([{
+                        user_from: req.user.uid,
+                        user_to: member.uid,
+                    }, {
+                        user_from: member.uid,
+                        user_to: req.user.uid,
+                    }]);
+    
+                    return res.status(200).json({
+                        ok: true,
+                        relation: relation[0],
+                    })
+    
+                }
+                else{
+                    //relation already exists
+                    return res.status(200).json({
+                        ok: true,
+                        relation: relation,
+                    })
+                }
+    
+            }
+            else{
+                //member doesn't exist
+                return res.status(200).json({
+                    ok: false,
+                    error: `Member with email doesn't exists`,
+                })
+            }
+        }
+        else{
+            return res.status(400).json({
+                ok: false,
+                error: 'Member email and password is required',
+            })
+        }
+    } catch (e) {
+        return next(e);
+    }
+
+}
+
+
+module.exports.addMember = addMember;
+module.exports.addToCart = addMember;
 module.exports.getFamily = getFamily;
 module.exports.deleteItem = deleteItem;
 module.exports.entryPoint = entryPoint;

@@ -25,4 +25,16 @@ router.post('/cart/add/:pid', user.addToCart);
  */
 router.delete('/cart/delete/:pid', user.deleteItem);
 
+/**
+ * route : /user/family
+ * method : GET
+ */
+router.get('/family', user.getFamily);
+
+/**
+ * route : /user/family/add
+ * method : POST
+ */
+router.post('/family/add', user.addMember);
+
 module.exports = router;
